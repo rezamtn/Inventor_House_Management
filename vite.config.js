@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/Inventor_House_Management/',
   plugins: [
     react(),
     VitePWA({
@@ -16,8 +15,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/Inventor_House_Management/',
-        start_url: '/Inventor_House_Management/',
+        scope: '/',
+        start_url: '/',
         lang: 'fa',
         dir: 'rtl',
         icons: [
