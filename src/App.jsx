@@ -80,22 +80,22 @@ const statusOf = id => STATUSES.find(s=>s.id===id)||STATUSES[0];
 // ── Styles ────────────────────────────────────────────────────────────────────
 const C = {
   wrap:    { fontFamily:"'Vazirmatn',Tahoma,Arial,sans-serif", direction:"rtl", maxWidth:640, margin:"0 auto", padding:"1rem", color:"#111", background:"#fff", minHeight:"100dvh" },
-  input:   { width:"100%", padding:"9px 12px", border:"0.5px solid #ddd", borderRadius:8, fontFamily:"inherit", fontSize:14, background:"#fff", color:"#111", direction:"rtl", outline:"none" },
-  select:  { width:"100%", padding:"9px 12px", border:"0.5px solid #ddd", borderRadius:8, fontFamily:"inherit", fontSize:14, background:"#fff", color:"#111", direction:"rtl", cursor:"pointer", outline:"none" },
-  primary: { padding:"9px 18px", borderRadius:8, border:"none", background:"#111", color:"#fff", fontFamily:"inherit", fontSize:14, fontWeight:500, cursor:"pointer" },
-  ghost:   { padding:"9px 18px", borderRadius:8, border:"0.5px solid #ddd", background:"transparent", color:"#666", fontFamily:"inherit", fontSize:14, cursor:"pointer" },
-  iconBtn: t => ({ minWidth:28, height:28, border:"0.5px solid #eee", borderRadius:7, background:"transparent", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:t==="danger"?"#A32D2D":"#888", fontFamily:"inherit", flexShrink:0, padding:"0 5px", gap:3 }),
-  badge:   s => ({ display:"inline-flex", alignItems:"center", padding:"2px 8px", borderRadius:20, fontSize:11, fontWeight:500, cursor:"pointer", background:s.bg, color:s.color, whiteSpace:"nowrap", border:"none", fontFamily:"inherit" }),
-  houseTab:a => ({ padding:"7px 14px", borderRadius:24, border:`1px solid ${a?"#111":"#ddd"}`, background:a?"#111":"transparent", color:a?"#fff":"#555", cursor:"pointer", fontFamily:"inherit", fontSize:14, fontWeight:500, whiteSpace:"nowrap" }),
-  secTab:  a => ({ flex:1, padding:"10px 4px", border:"none", borderBottom:`2px solid ${a?"#111":"transparent"}`, background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:a?"#111":"#888", fontWeight:a?500:400, display:"flex", flexDirection:"column", alignItems:"center", gap:3 }),
-  navBtn:  a => ({ padding:"7px 12px", border:`0.5px solid ${a?"#F09595":"#ddd"}`, borderRadius:20, background:a?"#FCEBEB":"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:a?"#A32D2D":"#888", display:"flex", alignItems:"center", gap:5, fontWeight:a?500:400 }),
-  smBtn:   { padding:"6px 12px", borderRadius:8, border:"0.5px solid #ddd", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:12, color:"#555", display:"flex", alignItems:"center", gap:5 },
-  itemRow: { background:"#fff", border:"0.5px solid #ececec", borderRadius:10, padding:"9px 12px", display:"flex", alignItems:"center", gap:8, marginBottom:6 },
-  addBtn:  color => ({ width:"100%", padding:"7px 12px", border:`0.5px dashed ${color||"#ddd"}`, borderRadius:9, background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:12, color:color||"#bbb", display:"flex", alignItems:"center", gap:5, marginTop:5 }),
-  sectionBox: { border:"0.5px solid #e8e8e8", borderRadius:12, marginBottom:10, overflow:"hidden" },
-  sectionHead:{ display:"flex", alignItems:"center", gap:6, padding:"10px 12px", background:"#fafafa", cursor:"pointer", userSelect:"none" },
-  subBox:  { border:"0.5px solid #f0f0f0", borderRadius:10, marginBottom:8, overflow:"hidden" },
-  subHead: { display:"flex", alignItems:"center", gap:6, padding:"8px 12px", background:"#f7f7f7", cursor:"pointer", userSelect:"none" },
+  input:   { width:"100%", padding:"12px 14px", border:"0.5px solid #ddd", borderRadius:10, fontFamily:"inherit", fontSize:16, background:"#fff", color:"#111", direction:"rtl", outline:"none" },
+  select:  { width:"100%", padding:"12px 14px", border:"0.5px solid #ddd", borderRadius:10, fontFamily:"inherit", fontSize:16, background:"#fff", color:"#111", direction:"rtl", cursor:"pointer", outline:"none" },
+  primary: { padding:"12px 20px", borderRadius:10, border:"none", background:"#111", color:"#fff", fontFamily:"inherit", fontSize:16, fontWeight:500, cursor:"pointer" },
+  ghost:   { padding:"12px 20px", borderRadius:10, border:"0.5px solid #ddd", background:"transparent", color:"#666", fontFamily:"inherit", fontSize:16, cursor:"pointer" },
+  iconBtn: t => ({ minWidth:36, height:36, border:"0.5px solid #eee", borderRadius:8, background:"transparent", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, color:t==="danger"?"#A32D2D":"#888", fontFamily:"inherit", flexShrink:0, padding:"0 6px", gap:3 }),
+  badge:   s => ({ display:"inline-flex", alignItems:"center", padding:"5px 12px", borderRadius:20, fontSize:13, fontWeight:500, cursor:"pointer", background:s.bg, color:s.color, whiteSpace:"nowrap", border:"none", fontFamily:"inherit" }),
+  houseTab:a => ({ padding:"10px 18px", borderRadius:24, border:`1px solid ${a?"#111":"#ddd"}`, background:a?"#111":"transparent", color:a?"#fff":"#555", cursor:"pointer", fontFamily:"inherit", fontSize:16, fontWeight:500, whiteSpace:"nowrap" }),
+  secTab:  a => ({ flex:1, padding:"12px 4px", border:"none", borderBottom:`2px solid ${a?"#111":"transparent"}`, background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:a?"#111":"#888", fontWeight:a?500:400, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }),
+  navBtn:  a => ({ padding:"10px 14px", border:`0.5px solid ${a?"#F09595":"#ddd"}`, borderRadius:20, background:a?"#FCEBEB":"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:14, color:a?"#A32D2D":"#888", display:"flex", alignItems:"center", gap:5, fontWeight:a?500:400 }),
+  smBtn:   { padding:"9px 14px", borderRadius:9, border:"0.5px solid #ddd", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:14, color:"#555", display:"flex", alignItems:"center", gap:5 },
+  itemRow: { background:"#fff", border:"0.5px solid #ececec", borderRadius:12, padding:"13px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:8 },
+  addBtn:  color => ({ width:"100%", padding:"11px 14px", border:`0.5px dashed ${color||"#ddd"}`, borderRadius:10, background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:14, color:color||"#bbb", display:"flex", alignItems:"center", gap:5, marginTop:6 }),
+  sectionBox: { border:"0.5px solid #e8e8e8", borderRadius:14, marginBottom:12, overflow:"hidden" },
+  sectionHead:{ display:"flex", alignItems:"center", gap:8, padding:"13px 14px", background:"#fafafa", cursor:"pointer", userSelect:"none" },
+  subBox:  { border:"0.5px solid #f0f0f0", borderRadius:11, marginBottom:8, overflow:"hidden" },
+  subHead: { display:"flex", alignItems:"center", gap:8, padding:"11px 14px", background:"#f7f7f7", cursor:"pointer", userSelect:"none" },
 };
 
 function highlight(text, q) {
@@ -110,8 +110,8 @@ function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
   return (
     <div id={`item-${item.id}`} style={C.itemRow}>
       <div style={{flex:1,minWidth:0}}>
-        <span style={{fontSize:13,fontWeight:500}}>{searchQ?highlight(item.name,searchQ):item.name}</span>
-        <span style={{fontSize:11,color:"#bbb",marginRight:6}}>{item.qty} {item.unit}</span>
+        <span style={{fontSize:15,fontWeight:500}}>{searchQ?highlight(item.name,searchQ):item.name}</span>
+        <span style={{fontSize:14,color:"#bbb",marginRight:6}}>{item.qty} {item.unit}</span>
       </div>
       <button style={C.badge(st)} onClick={onCycle}>{st.label}</button>
       <button style={C.iconBtn()} onClick={onEdit} title="ویرایش">✏️</button>
@@ -388,7 +388,7 @@ export default function App() {
   if (!data) return (
     <div style={{...C.wrap,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100dvh",gap:12,color:"#888"}}>
       <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/Vazirmatn-font-face.css" rel="stylesheet"/>
-      <div style={{fontSize:32}}>☁️</div><div style={{fontSize:14}}>در حال اتصال...</div>
+      <div style={{fontSize:32}}>☁️</div><div style={{fontSize:16}}>در حال اتصال...</div>
     </div>
   );
 
@@ -428,14 +428,14 @@ export default function App() {
         <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/Vazirmatn-font-face.css" rel="stylesheet"/>
         <div style={{background:"#fff",borderRadius:16,padding:"1.5rem",width:"100%",maxWidth:400,border:"0.5px solid #ddd",marginTop:"1rem"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.25rem"}}>
-            <span style={{fontSize:16,fontWeight:500}}>{title}</span>
+            <span style={{fontSize:18,fontWeight:500}}>{title}</span>
             <button onClick={()=>setModal(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:"#888"}}>✕</button>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             {/* Name */}
             <div>
-              <label style={{fontSize:12,color:"#888",display:"block",marginBottom:5}}>نام</label>
+              <label style={{fontSize:15,color:"#888",display:"block",marginBottom:5}}>نام</label>
               <input style={C.input} value={modal.form.name} autoFocus
                 onChange={e=>setModal(m=>({...m,form:{...m.form,name:e.target.value}}))}
                 onKeyDown={e=>{ if(e.key==="Enter"&&modal.form.name.trim()) { if(isItem&&e.shiftKey) return; if(!isItem) handleModalSave(); }}}
@@ -446,7 +446,7 @@ export default function App() {
             {isItem&&<>
               <div style={{display:"flex",gap:10}}>
                 <div style={{flex:1}}>
-                  <label style={{fontSize:12,color:"#888",display:"block",marginBottom:5}}>تعداد</label>
+                  <label style={{fontSize:15,color:"#888",display:"block",marginBottom:5}}>تعداد</label>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
                     <button style={{width:30,height:34,border:"0.5px solid #ddd",borderRadius:6,background:"transparent",cursor:"pointer",fontSize:18,fontFamily:"inherit"}} onClick={()=>setModal(m=>({...m,form:{...m.form,qty:Math.max(1,m.form.qty-1)}}))}>−</button>
                     <input style={{...C.input,textAlign:"center",width:52}} type="number" min="1" value={modal.form.qty} onChange={e=>setModal(m=>({...m,form:{...m.form,qty:Math.max(1,parseInt(e.target.value)||1)}}))}/>
@@ -454,7 +454,7 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{flex:1}}>
-                  <label style={{fontSize:12,color:"#888",display:"block",marginBottom:5}}>واحد</label>
+                  <label style={{fontSize:15,color:"#888",display:"block",marginBottom:5}}>واحد</label>
                   <select style={C.select} value={modal.form.unit} onChange={e=>setModal(m=>({...m,form:{...m.form,unit:e.target.value}}))}>
                     {UNITS.map(u=><option key={u}>{u}</option>)}
                   </select>
@@ -463,11 +463,11 @@ export default function App() {
 
               {/* Status */}
               <div>
-                <label style={{fontSize:12,color:"#888",display:"block",marginBottom:8}}>وضعیت</label>
+                <label style={{fontSize:15,color:"#888",display:"block",marginBottom:8}}>وضعیت</label>
                 <div style={{display:"flex",gap:6}}>
                   {STATUSES.map(s=>(
                     <button key={s.id} onClick={()=>setModal(m=>({...m,form:{...m.form,status:s.id}}))}
-                      style={{flex:1,padding:"8px 4px",borderRadius:8,fontFamily:"inherit",fontSize:12,cursor:"pointer",
+                      style={{flex:1,padding:"8px 4px",borderRadius:8,fontFamily:"inherit",fontSize:14,cursor:"pointer",
                         border:modal.form.status===s.id?`2px solid ${s.color}`:"0.5px solid #eee",
                         background:modal.form.status===s.id?s.bg:"transparent",
                         color:modal.form.status===s.id?s.color:"#888",fontWeight:modal.form.status===s.id?500:400}}>
@@ -479,7 +479,7 @@ export default function App() {
 
               {/* Location (move to) */}
               <div>
-                <label style={{fontSize:12,display:"block",marginBottom:5,color: modal.mode==="edit"?"#854F0B":"#888", fontWeight: modal.mode==="edit"?500:400}}>
+                <label style={{fontSize:15,display:"block",marginBottom:5,color: modal.mode==="edit"?"#854F0B":"#888", fontWeight: modal.mode==="edit"?500:400}}>
                   {modal.mode==="edit"?"📍 موقعیت (انتقال به)":"📍 افزودن به"}
                 </label>
                 <select style={{...C.select, borderColor: modal.mode==="edit"&&modal.form.locKey!==ctxToKey(modal.originalCtx||modal.ctx)?"#854F0B":"#ddd"}}
@@ -522,9 +522,9 @@ export default function App() {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.75rem"}}>
         <span style={{fontSize:18,fontWeight:500}}>🏠 مدیریت خانه</span>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
-          {syncMsg&&<span style={{fontSize:11,color:syncMsg.includes("⚠️")?"#A32D2D":"#0F6E56",fontWeight:500,whiteSpace:"nowrap"}}>{syncMsg}</span>}
+          {syncMsg&&<span style={{fontSize:13,color:syncMsg.includes("⚠️")?"#A32D2D":"#0F6E56",fontWeight:500,whiteSpace:"nowrap"}}>{syncMsg}</span>}
           <button style={C.navBtn(view==="shopping")} onClick={()=>{setView(v=>v==="shopping"?"items":"shopping");setSearchOpen(false);setSearchQ("");}}>
-            🛒{totalNeeded>0&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{totalNeeded}</span>}
+            🛒{totalNeeded>0&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:12,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{totalNeeded}</span>}
           </button>
         </div>
       </div>
@@ -534,7 +534,7 @@ export default function App() {
         {searchOpen?(
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <div style={{flex:1,position:"relative"}}>
-              <span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>🔍</span>
+              <span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:18,color:"#aaa",pointerEvents:"none"}}>🔍</span>
               <input ref={searchRef} style={{...C.input,paddingRight:34}} placeholder="جستجو در همه خانه‌ها..."
                 value={searchQ} onChange={e=>setSearchQ(e.target.value)}/>
             </div>
@@ -550,7 +550,7 @@ export default function App() {
       {/* Search Results */}
       {isSearching?(
         <div>
-          <div style={{fontSize:13,color:"#888",marginBottom:"0.75rem"}}>
+          <div style={{fontSize:15,color:"#888",marginBottom:"0.75rem"}}>
             {results.length===0?`نتیجه‌ای برای «${searchQ}» پیدا نشد`:`${results.length} نتیجه`}
           </div>
           {results.length===0
@@ -559,12 +559,12 @@ export default function App() {
               const hRes=results.filter(r=>r.houseId===h.id); if(!hRes.length) return null;
               return (
                 <div key={h.id} style={{marginBottom:"1.25rem"}}>
-                  <div style={{fontSize:13,fontWeight:500,color:"#555",marginBottom:8}}>🏠 {h.name}</div>
+                  <div style={{fontSize:15,fontWeight:500,color:"#555",marginBottom:8}}>🏠 {h.name}</div>
                   {SECTORS.map(sec=>{
                     const sRes=hRes.filter(r=>r.sectorId===sec.id); if(!sRes.length) return null;
                     return (
                       <div key={sec.id} style={{marginBottom:8}}>
-                        <div style={{fontSize:11,color:"#aaa",marginBottom:5}}>{sec.icon} {sec.label}</div>
+                        <div style={{fontSize:13,color:"#aaa",marginBottom:5}}>{sec.icon} {sec.label}</div>
                         {sRes.map(item=>{
                           const st=statusOf(item.status);
                           return (
@@ -585,7 +585,7 @@ export default function App() {
                               setHighlightItemId(item.id);
                             }}>
                               <div style={{flex:1,minWidth:0}}>
-                                <span style={{fontSize:13,fontWeight:500}}>{highlight(item.name,searchQ)}</span>
+                                <span style={{fontSize:15,fontWeight:500}}>{highlight(item.name,searchQ)}</span>
                                 <span style={{fontSize:11,color:"#bbb",display:"block"}}>{item.path}</span>
                               </div>
                               <span style={C.badge(st)}>{st.label}</span>
@@ -638,16 +638,16 @@ export default function App() {
                     const hItems=allNeeded.filter(i=>i.houseName===h.name); if(!hItems.length) return null;
                     return (
                       <div key={h.id} style={{marginBottom:"1.5rem"}}>
-                        <div style={{fontSize:13,fontWeight:500,color:"#666",marginBottom:10}}>🏠 {h.name}</div>
+                        <div style={{fontSize:15,fontWeight:500,color:"#666",marginBottom:10}}>🏠 {h.name}</div>
                         {SECTORS.map(sec=>{
                           const its=hItems.filter(i=>i.sectorLabel===sec.label); if(!its.length) return null;
                           return (
                             <div key={sec.id} style={{marginBottom:10}}>
-                              <div style={{fontSize:11,color:"#aaa",marginBottom:6}}>{sec.icon} {sec.label}</div>
+                              <div style={{fontSize:13,color:"#aaa",marginBottom:6}}>{sec.icon} {sec.label}</div>
                               {its.map(item=>(
                                 <div key={item.id} style={{...C.itemRow,justifyContent:"space-between"}}>
-                                  <div><span style={{fontSize:13,fontWeight:500}}>{item.name}</span><span style={{fontSize:11,color:"#bbb",display:"block"}}>{item.path}</span></div>
-                                  <span style={{fontSize:12,color:"#888"}}>{item.qty} {item.unit}</span>
+                                  <div><span style={{fontSize:15,fontWeight:500}}>{item.name}</span><span style={{fontSize:11,color:"#bbb",display:"block"}}>{item.path}</span></div>
+                                  <span style={{fontSize:14,color:"#888"}}>{item.qty} {item.unit}</span>
                                 </div>
                               ))}
                             </div>
@@ -667,16 +667,16 @@ export default function App() {
                   const n=countNeeded(getSectorD(data,sec.id));
                   return (
                     <button key={sec.id} style={C.secTab(sector===sec.id)} onClick={()=>setSector(sec.id)}>
-                      <span style={{fontSize:20}}>{sec.icon}</span>
-                      <span style={{fontSize:11}}>{sec.label}</span>
-                      {n>0&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:8}}>{n}</span>}
+                      <span style={{fontSize:24}}>{sec.icon}</span>
+                      <span style={{fontSize:13}}>{sec.label}</span>
+                      {n>0&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:11,fontWeight:700,padding:"1px 5px",borderRadius:8}}>{n}</span>}
                     </button>
                   );
                 })}
               </div>
 
               {curSectorD.updatedAt&&(
-                <div style={{fontSize:11,color:"#ccc",marginBottom:"0.75rem",textAlign:"left"}}>آخرین بروزرسانی: {formatDate(curSectorD.updatedAt)}</div>
+                <div style={{fontSize:13,color:"#ccc",marginBottom:"0.75rem",textAlign:"left"}}>آخرین بروزرسانی: {formatDate(curSectorD.updatedAt)}</div>
               )}
 
               {/* Direct items in sector */}
@@ -687,8 +687,8 @@ export default function App() {
                 <div key={sec.id} style={C.sectionBox}>
                   <div style={C.sectionHead} onClick={()=>setExpanded(e=>({...e,[sec.id]:!e[sec.id]}))}>
                     <span style={{fontSize:14}}>{expanded[sec.id]?"▾":"▸"}</span>
-                    <span style={{fontSize:14,fontWeight:500,flex:1}}>{sec.name}</span>
-                    <span style={{fontSize:11,color:"#bbb"}}>
+                    <span style={{fontSize:16,fontWeight:500,flex:1}}>{sec.name}</span>
+                    <span style={{fontSize:13,color:"#bbb"}}>
                       {(sec.items?.length||0)+(sec.subsections?.reduce((a,s)=>a+(s.items?.length||0),0)||0)} آیتم
                     </span>
                     <button style={C.iconBtn()} onClick={e=>{e.stopPropagation();openNameModal("subsection",{secId:sec.id});}}>＋زیربخش</button>
@@ -702,8 +702,8 @@ export default function App() {
                         <div key={sub.id} style={C.subBox}>
                           <div style={C.subHead} onClick={()=>setExpanded(e=>({...e,[sub.id]:!e[sub.id]}))}>
                             <span style={{fontSize:13}}>{expanded[sub.id]?"▾":"▸"}</span>
-                            <span style={{fontSize:13,fontWeight:500,flex:1}}>{sub.name}</span>
-                            <span style={{fontSize:11,color:"#bbb"}}>{sub.items?.length||0} آیتم</span>
+                            <span style={{fontSize:15,fontWeight:500,flex:1}}>{sub.name}</span>
+                            <span style={{fontSize:13,color:"#bbb"}}>{sub.items?.length||0} آیتم</span>
                             <button style={C.iconBtn()} onClick={e=>{e.stopPropagation();openNameModal("subsection",{secId:sec.id,subId:sub.id},sub);}}>✏️</button>
                             <button style={C.iconBtn("danger")} onClick={e=>{e.stopPropagation();deleteSubsection(sec.id,sub.id);}}>🗑️</button>
                           </div>
