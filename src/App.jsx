@@ -108,7 +108,7 @@ function highlight(text, q) {
 function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
   const st=statusOf(item.status);
   return (
-    <div style={C.itemRow}>
+    <div id={`item-${item.id}`} style={C.itemRow}>
       <div style={{flex:1,minWidth:0}}>
         <span style={{fontSize:13,fontWeight:500}}>{searchQ?highlight(item.name,searchQ):item.name}</span>
         <span style={{fontSize:11,color:"#bbb",marginRight:6}}>{item.qty} {item.unit}</span>
@@ -132,7 +132,8 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [renaming,   setRenaming]   = useState(null);
   const [nameDraft,  setNameDraft]  = useState("");
-  const [modal,      setModal]      = useState(null);
+  const [modal,          setModal]          = useState(null);
+  const [highlightItemId,setHighlightItemId] = useState(null);
   const fileRef   = useRef();
   const searchRef = useRef();
   const saveTimer = useRef(null);
@@ -150,6 +151,20 @@ export default function App() {
   }, []);
 
   useEffect(() => { if(searchOpen&&searchRef.current) searchRef.current.focus(); }, [searchOpen]);
+
+  useEffect(() => {
+    if (!highlightItemId) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`item-${highlightItemId}`);
+      if (el) {
+        el.scrollIntoView({ behavior:"smooth", block:"center" });
+        el.style.transition = "box-shadow 0.3s";
+        el.style.boxShadow = "0 0 0 2.5px #111";
+        setTimeout(() => { el.style.boxShadow = ""; setHighlightItemId(null); }, 2000);
+      }
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [highlightItemId]);
 
   const persist = nd => {
     setData(nd); writeLocal(nd); setSyncMsg("💾 ذخیره...");
@@ -323,11 +338,13 @@ export default function App() {
     const q=searchQ.trim().toLowerCase(); const res=[];
     data.houses.forEach(h=>SECTORS.forEach(sec=>{
       const sd=h.sectors?.[sec.id]; if(!sd) return;
-      const collect=(items,path)=>items?.forEach(i=>{if(i.name.toLowerCase().includes(q)) res.push({...i,houseName:h.name,houseId:h.id,sectorId:sec.id,sectorLabel:sec.label,sectorIcon:sec.icon,path});});
-      collect(sd.items,"مستقیم");
+      const base={houseName:h.name,houseId:h.id,sectorId:sec.id,sectorLabel:sec.label,sectorIcon:sec.icon};
+      (sd.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:"مستقیم",secId:null,subId:null}); });
       (sd.sections||[]).forEach(s=>{
-        collect(s.items,s.name);
-        (s.subsections||[]).forEach(sub=>collect(sub.items,`${s.name} › ${sub.name}`));
+        (s.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:s.name,secId:s.id,subId:null}); });
+        (s.subsections||[]).forEach(sub=>{
+          (sub.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:`${s.name} › ${sub.name}`,secId:s.id,subId:sub.id}); });
+        });
       });
     }));
     return res;
@@ -551,7 +568,22 @@ export default function App() {
                         {sRes.map(item=>{
                           const st=statusOf(item.status);
                           return (
-                            <div key={item.id} style={{...C.itemRow,cursor:"pointer"}} onClick={()=>{setHouse(item.houseId);setSector(item.sectorId);setView("items");setSearchOpen(false);setSearchQ("");}}>
+                            <div key={item.id} style={{...C.itemRow,cursor:"pointer"}} onClick={()=>{
+                              setHouse(item.houseId);
+                              setSector(item.sectorId);
+                              setView("items");
+                              setSearchOpen(false);
+                              setSearchQ("");
+                              // expand parent section and subsection
+                              setExpanded(e=>{
+                                const next={...e};
+                                if(item.secId) next[item.secId]=true;
+                                if(item.subId) next[item.subId]=true;
+                                return next;
+                              });
+                              // scroll + highlight the exact item
+                              setHighlightItemId(item.id);
+                            }}>
                               <div style={{flex:1,minWidth:0}}>
                                 <span style={{fontSize:13,fontWeight:500}}>{highlight(item.name,searchQ)}</span>
                                 <span style={{fontSize:11,color:"#bbb",display:"block"}}>{item.path}</span>
