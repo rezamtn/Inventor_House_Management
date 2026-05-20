@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
-      includeAssets: ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
+      includeAssets: ['icon-*.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'مدیریت خانه',
         short_name: 'خانه من',
@@ -18,22 +18,25 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
-        start_url: '/?pwa=1',
+        start_url: '/',
         lang: 'fa',
         dir: 'rtl',
         prefer_related_applications: false,
         icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: 'icon-96.png',  sizes: '96x96',   type: 'image/png' },
+          { src: 'icon-144.png', sizes: '144x144',  type: 'image/png' },
+          { src: 'icon-192.png', sizes: '192x192',  type: 'image/png' },
+          { src: 'icon-256.png', sizes: '256x256',  type: 'image/png' },
+          { src: 'icon-384.png', sizes: '384x384',  type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512',  type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512',  type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,webmanifest}'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
-        clientsClaim: true,
-        runtimeCaching: []
+        clientsClaim: true
       }
     })
   ]
