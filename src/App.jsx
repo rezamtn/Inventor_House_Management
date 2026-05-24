@@ -14,7 +14,7 @@ const STATUSES = [
   { id: "low",       label: "رو به اتمام", color: "#854F0B", bg: "#FAEEDA" },
   { id: "needed",    label: "باید بخرم",   color: "#A32D2D", bg: "#FCEBEB" },
 ];
-const UNITS = ["عدد","بسته","کیلوگرم","گرم","لیتر","میلی‌لیتر","جعبه","شیشه","قوطی"];
+const UNITS = ["عدد","بسته","کیلوگرم","گرم","لیتر","میلی‌لیتر","جعبه","شیشه","قوطی","%"];
 
 const mkId  = () => Math.random().toString(36).slice(2,9);
 const clone = x  => JSON.parse(JSON.stringify(x));
@@ -448,14 +448,38 @@ export default function App() {
                 <div style={{flex:1}}>
                   <label style={{fontSize:15,color:"#888",display:"block",marginBottom:5}}>تعداد</label>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    <button style={{width:30,height:34,border:"0.5px solid #ddd",borderRadius:6,background:"transparent",cursor:"pointer",fontSize:18,fontFamily:"inherit"}} onClick={()=>setModal(m=>({...m,form:{...m.form,qty:Math.max(1,m.form.qty-1)}}))}>−</button>
-                    <input style={{...C.input,textAlign:"center",width:52}} type="number" min="1" value={modal.form.qty} onChange={e=>setModal(m=>({...m,form:{...m.form,qty:Math.max(1,parseInt(e.target.value)||1)}}))}/>
-                    <button style={{width:30,height:34,border:"0.5px solid #ddd",borderRadius:6,background:"transparent",cursor:"pointer",fontSize:18,fontFamily:"inherit"}} onClick={()=>setModal(m=>({...m,form:{...m.form,qty:m.form.qty+1}}))}>+</button>
+                    <button style={{width:30,height:34,border:"0.5px solid #ddd",borderRadius:6,background:"transparent",cursor:"pointer",fontSize:18,fontFamily:"inherit"}} onClick={()=>setModal(m=>{
+                      const isP=m.form.unit==="%";
+                      const step=isP?5:1; const min=isP?0:1;
+                      return {...m,form:{...m.form,qty:Math.max(min,m.form.qty-step)}};
+                    })}>−</button>
+                    <div style={{position:"relative",width:64}}>
+                      <input style={{...C.input,textAlign:"center",width:"100%",paddingLeft:modal.form.unit==="%"?"18px":"12px"}} type="number"
+                        min={modal.form.unit==="%"?0:1} max={modal.form.unit==="%"?100:undefined} step={modal.form.unit==="%"?5:1}
+                        value={modal.form.qty}
+                        onChange={e=>setModal(m=>{
+                          const isP=m.form.unit==="%";
+                          const val=parseInt(e.target.value)||0;
+                          const clamped=isP?Math.min(100,Math.max(0,val)):Math.max(1,val);
+                          return {...m,form:{...m.form,qty:clamped}};
+                        })}/>
+                      {modal.form.unit==="%" && <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:14,color:"#888",pointerEvents:"none"}}>%</span>}
+                    </div>
+                    <button style={{width:30,height:34,border:"0.5px solid #ddd",borderRadius:6,background:"transparent",cursor:"pointer",fontSize:18,fontFamily:"inherit"}} onClick={()=>setModal(m=>{
+                      const isP=m.form.unit==="%";
+                      const step=isP?5:1; const max=isP?100:Infinity;
+                      return {...m,form:{...m.form,qty:Math.min(max,m.form.qty+step)}};
+                    })}>+</button>
                   </div>
                 </div>
                 <div style={{flex:1}}>
                   <label style={{fontSize:15,color:"#888",display:"block",marginBottom:5}}>واحد</label>
-                  <select style={C.select} value={modal.form.unit} onChange={e=>setModal(m=>({...m,form:{...m.form,unit:e.target.value}}))}>
+                  <select style={C.select} value={modal.form.unit} onChange={e=>{
+                    const newUnit=e.target.value;
+                    setModal(m=>({...m,form:{...m.form,unit:newUnit,
+                      qty: newUnit==="%"?100 : m.form.unit==="%"?1 : m.form.qty
+                    }}));
+                  }}>
                     {UNITS.map(u=><option key={u}>{u}</option>)}
                   </select>
                 </div>
