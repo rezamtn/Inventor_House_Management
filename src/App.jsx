@@ -586,6 +586,22 @@ export default function App() {
         <span style={{fontSize:18,fontWeight:500}}>🏠 مدیریت خانه</span>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           {syncMsg&&<span style={{fontSize:13,color:syncMsg.includes("⚠️")?"#A32D2D":"#0F6E56",fontWeight:500,whiteSpace:"nowrap"}}>{syncMsg}</span>}
+          <button
+            title={pushEnabled?"اعلان جمعه فعاله — بزن تا غیرفعال بشه":"اعلان هر جمعه ساعت ۱۶ — بزن تا فعال بشه"}
+            style={{width:38,height:38,borderRadius:19,border:`1.5px solid ${pushEnabled?"#0F6E56":"#ddd"}`,
+              background:pushEnabled?"#E1F5EE":"transparent",cursor:"pointer",fontSize:20,
+              display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}
+            onClick={async()=>{
+              if (pushEnabled) {
+                await unsubscribeFromPush(); setPushEnabled(false);
+              } else {
+                const sub = await subscribeToPush();
+                setPushEnabled(!!sub);
+                if (!sub) alert('لطفاً دسترسی نوتیفیکیشن رو در تنظیمات مرورگر فعال کن');
+              }
+            }}>
+            {pushEnabled?"🔔":"🔕"}
+          </button>
           <button style={C.navBtn(view==="shopping")} onClick={()=>{setView(v=>v==="shopping"?"items":"shopping");setSearchOpen(false);setSearchQ("");}}>
             🛒{totalNeeded>0&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:12,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{totalNeeded}</span>}
           </button>
