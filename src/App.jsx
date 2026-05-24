@@ -14,7 +14,7 @@ const STATUSES = [
   { id: "low",       label: "رو به اتمام", color: "#854F0B", bg: "#FAEEDA" },
   { id: "needed",    label: "باید بخرم",   color: "#A32D2D", bg: "#FCEBEB" },
 ];
-const UNITS = ["عدد","بسته","کیلوگرم","گرم","لیتر","میلی‌لیتر","جعبه","شیشه","قوطی","%"];
+const UNITS = ["%","عدد","بسته","کیلوگرم","گرم","لیتر","میلی‌لیتر","جعبه","شیشه","قوطی"];
 
 const mkId  = () => Math.random().toString(36).slice(2,9);
 const clone = x  => JSON.parse(JSON.stringify(x));
