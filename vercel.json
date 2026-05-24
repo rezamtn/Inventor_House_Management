@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/notify",
+      "schedule": "30 13 * * 5"
+    }
+  ],
   "headers": [
     {
       "source": "/manifest.webmanifest",

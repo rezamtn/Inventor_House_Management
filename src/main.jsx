@@ -6,7 +6,11 @@ import App from './App.jsx'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then(reg => console.log('SW registered:', reg.scope))
+      .then(reg => {
+        console.log('SW registered:', reg.scope);
+        // Import push handler into the SW
+        reg.active?.postMessage({ type: 'IMPORT_PUSH' });
+      })
       .catch(err => console.log('SW failed:', err))
   })
 }

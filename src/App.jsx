@@ -1,6 +1,38 @@
 import { useState, useEffect, useRef } from "react";
 import { loadFromCloud, saveToCloud } from "./supabase";
 
+const VAPID_PUBLIC = 'BOGZiKAFAQnJDEQ_qfQbmQWblUStai9erzPp1wGPmQAtELeRdW-Y56I8YGrFWXPGKqeOZek5lkIIWqEtatnCItQ';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function subscribeToPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return null;
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+  });
+  await fetch('/api/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(sub) });
+  return sub;
+}
+
+async function unsubscribeFromPush() {
+  if (!('serviceWorker' in navigator)) return;
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+  if (sub) {
+    await fetch('/api/subscribe', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ endpoint: sub.endpoint }) });
+    await sub.unsubscribe();
+  }
+}
+
 const LOCAL_KEY = "houseInventory_v5";
 
 const SECTORS = [
@@ -134,6 +166,7 @@ export default function App() {
   const [nameDraft,  setNameDraft]  = useState("");
   const [modal,          setModal]          = useState(null);
   const [highlightItemId,setHighlightItemId] = useState(null);
+  const [pushEnabled,    setPushEnabled]     = useState(false);
   const fileRef   = useRef();
   const searchRef = useRef();
   const saveTimer = useRef(null);
@@ -148,6 +181,12 @@ export default function App() {
       setData(d); setHouse(d.houses[0].id);
       setView(d.houses[0].name?"items":"setup");
     })();
+    // Check if already subscribed to push
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(reg =>
+        reg.pushManager.getSubscription().then(sub => setPushEnabled(!!sub))
+      );
+    }
   }, []);
 
   useEffect(() => { if(searchOpen&&searchRef.current) searchRef.current.focus(); }, [searchOpen]);
@@ -629,6 +668,21 @@ export default function App() {
           <div style={{display:"flex",gap:8,marginBottom:"0.75rem"}}>
             <button style={C.smBtn} onClick={doBackup}>💾 بکاپ</button>
             <button style={C.smBtn} onClick={()=>fileRef.current.click()}>📂 بازیابی</button>
+            <button style={{...C.smBtn, marginRight:"auto",
+              background: pushEnabled?"#E1F5EE":"transparent",
+              color: pushEnabled?"#0F6E56":"#555",
+              border: pushEnabled?"0.5px solid #0F6E56":"0.5px solid #ddd"}}
+              onClick={async()=>{
+                if (pushEnabled) {
+                  await unsubscribeFromPush(); setPushEnabled(false);
+                } else {
+                  const sub = await subscribeToPush();
+                  setPushEnabled(!!sub);
+                  if (!sub) alert('لطفاً دسترسی نوتیفیکیشن رو در مرورگر فعال کن');
+                }
+              }}>
+              {pushEnabled ? "🔔 اعلان فعاله" : "🔕 اعلان جمعه"}
+            </button>
           </div>
 
           {/* House Tabs */}
