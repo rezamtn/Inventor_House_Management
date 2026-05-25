@@ -137,13 +137,27 @@ function highlight(text, q) {
   return <>{text.slice(0,i)}<mark style={{background:"#FFF3B0",color:"#111",borderRadius:3,padding:"0 1px"}}>{text.slice(i,i+q.length)}</mark>{text.slice(i+q.length)}</>;
 }
 
+function qtyColor(qty, unit) {
+  if (unit === "%") {
+    if (qty >= 100) return { color:"#0F6E56", bg:"#E1F5EE" }; // سبز
+    if (qty >= 75)  return { color:"#1a6fa8", bg:"#ddeeff" }; // آبی
+    if (qty >= 50)  return { color:"#8a6d00", bg:"#FFF8DC" }; // زرد
+    if (qty >= 25)  return { color:"#b85c00", bg:"#FFF0E0" }; // نارنجی
+    return          { color:"#A32D2D", bg:"#FCEBEB" };        // قرمز
+  }
+  return { color:"#0F6E56", bg:"#E1F5EE" }; // همیشه سبز
+}
+
 function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
-  const st=statusOf(item.status);
+  const st = statusOf(item.status);
+  const qc = qtyColor(item.qty, item.unit);
   return (
     <div id={`item-${item.id}`} style={C.itemRow}>
-      <div style={{flex:1,minWidth:0}}>
+      <div style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
         <span style={{fontSize:15,fontWeight:500}}>{searchQ?highlight(item.name,searchQ):item.name}</span>
-        <span style={{fontSize:14,color:"#bbb",marginRight:6}}>{item.qty} {item.unit}</span>
+        <span style={{fontSize:12,fontWeight:600,color:qc.color,background:qc.bg,padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap"}}>
+          {item.qty}{item.unit}
+        </span>
       </div>
       <button style={C.badge(st)} onClick={onCycle}>{st.label}</button>
       <button style={C.iconBtn()} onClick={onEdit} title="ویرایش">✏️</button>
