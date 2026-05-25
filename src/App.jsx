@@ -139,13 +139,13 @@ function highlight(text, q) {
 
 function qtyColor(qty, unit) {
   if (unit === "%") {
-    if (qty >= 100) return { color:"#0F6E56", bg:"#E1F5EE" }; // سبز
-    if (qty >= 75)  return { color:"#1a6fa8", bg:"#ddeeff" }; // آبی
-    if (qty >= 50)  return { color:"#8a6d00", bg:"#FFF8DC" }; // زرد
-    if (qty >= 25)  return { color:"#b85c00", bg:"#FFF0E0" }; // نارنجی
-    return          { color:"#A32D2D", bg:"#FCEBEB" };        // قرمز
+    if (qty >= 76)  return { color:"#0F6E56", bg:"#E1F5EE" }; // سبز 76-100
+    if (qty >= 51)  return { color:"#1a6fa8", bg:"#ddeeff" }; // آبی 51-75
+    if (qty >= 26)  return { color:"#8a6d00", bg:"#FFF8DC" }; // زرد 26-50
+    if (qty >= 1)   return { color:"#b85c00", bg:"#FFF0E0" }; // نارنجی 1-25
+    return          { color:"#A32D2D", bg:"#FCEBEB" };        // قرمز 0
   }
-  return { color:"#0F6E56", bg:"#E1F5EE" }; // همیشه سبز
+  return { color:"#0F6E56", bg:"#E1F5EE" };
 }
 
 function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
@@ -153,9 +153,9 @@ function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
   const qc = qtyColor(item.qty, item.unit);
   return (
     <div id={`item-${item.id}`} style={C.itemRow}>
-      <div style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-        <span style={{fontSize:15,fontWeight:500}}>{searchQ?highlight(item.name,searchQ):item.name}</span>
-        <span style={{fontSize:12,fontWeight:600,color:qc.color,background:qc.bg,padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap"}}>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:15,fontWeight:500,marginBottom:3}}>{searchQ?highlight(item.name,searchQ):item.name}</div>
+        <span style={{fontSize:12,fontWeight:600,color:qc.color,background:qc.bg,padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap",display:"inline-block"}}>
           {item.qty}{item.unit}
         </span>
       </div>
