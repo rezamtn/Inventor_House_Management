@@ -145,7 +145,7 @@ function qtyColor(qty, unit) {
     if (qty >= 1)   return { color:"#b85c00", bg:"#FFF0E0" }; // نارنجی 1-25
     return          { color:"#A32D2D", bg:"#FCEBEB" };        // قرمز 0
   }
-  return { color:"#0F6E56", bg:"#E1F5EE" };
+  return { color:"#111", bg:"transparent" }; // مشکی برای تعداد
 }
 
 function ItemRow({ item, onCycle, onEdit, onDelete, searchQ }) {
