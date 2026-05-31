@@ -796,7 +796,7 @@ export default function App() {
                   <div style={C.sectionHead} onClick={()=>setExpanded(e=>({...e,[sec.id]:!e[sec.id]}))}>
                     <span style={{fontSize:14}}>{expanded[sec.id]?"▾":"▸"}</span>
                     <span style={{fontSize:16,fontWeight:500,flex:1}}>{sec.name}</span>
-                    <span style={{fontSize:13,color:"#bbb"}}>
+                    <span style={{fontSize:13,color:"#111",fontWeight:500}}>
                       {(sec.items?.length||0)+(sec.subsections?.reduce((a,s)=>a+(s.items?.length||0),0)||0)} آیتم
                     </span>
                     <button style={C.iconBtn()} onClick={e=>{e.stopPropagation();openNameModal("subsection",{secId:sec.id});}}>＋زیربخش</button>
@@ -811,7 +811,7 @@ export default function App() {
                           <div style={C.subHead} onClick={()=>setExpanded(e=>({...e,[sub.id]:!e[sub.id]}))}>
                             <span style={{fontSize:13}}>{expanded[sub.id]?"▾":"▸"}</span>
                             <span style={{fontSize:15,fontWeight:500,flex:1}}>{sub.name}</span>
-                            <span style={{fontSize:13,color:"#bbb"}}>{sub.items?.length||0} آیتم</span>
+                            <span style={{fontSize:13,color:"#111",fontWeight:500}}>{sub.items?.length||0} آیتم</span>
                             <button style={C.iconBtn()} onClick={e=>{e.stopPropagation();openNameModal("subsection",{secId:sec.id,subId:sub.id},sub);}}>✏️</button>
                             <button style={C.iconBtn("danger")} onClick={e=>{e.stopPropagation();deleteSubsection(sec.id,sub.id);}}>🗑️</button>
                           </div>
