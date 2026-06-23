@@ -36,7 +36,7 @@ async function unsubscribeFromPush() {
 const LOCAL_KEY = "houseInventory_v5";
 
 const SECTORS = [
-  { id: "yakhchal",    label: "یخچال",    icon: "❄️" },
+  { id: "yakhchal",    label: "کمد لباس", icon: "👔" },
   { id: "ashpazkhane", label: "آشپزخانه", icon: "🍳" },
   { id: "anbar",       label: "انباری",   icon: "📦" },
   { id: "hamam",       label: "حمام",     icon: "🚿" },
