@@ -1,7 +1,5 @@
 # Dedicated API subdomain.
 inventory-api.motmaenqa.com {
-    encode zstd gzip
-
     @api path /api/*
     handle @api {
         reverse_proxy inventory-api:3000
