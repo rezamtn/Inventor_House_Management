@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { AuthenticationRequiredError, loadFromCloud, login, logout, saveToCloud } from "./cloud";
+import { AuthenticationRequiredError, LoginError, loadFromCloud, login, logout, saveToCloud } from "./cloud";
 
 const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
@@ -223,14 +223,19 @@ export default function App() {
     event.preventDefault();
     setLoginBusy(true); setLoginError("");
     try {
-      if (!(await login(loginPassword))) {
-        setLoginError("رمز عبور نادرست است");
-        return;
-      }
+      await login(loginPassword);
       setLoginPassword("");
       await initializeFromCloud();
-    } catch {
-      setLoginError("ورود انجام نشد؛ دوباره تلاش کنید");
+    } catch (error) {
+      if (error instanceof LoginError) {
+        if (error.status === 401) setLoginError("رمز عبور نادرست است");
+        else if (error.status === 403) setLoginError("آدرس Preview با APP_ORIGIN مطابقت ندارد");
+        else if (error.status === 429) setLoginError("تعداد تلاش‌ها زیاد است؛ ۱۵ دقیقه صبر کنید");
+        else if (error.status === 503) setLoginError("تنظیمات ورود روی سرور کامل نیست");
+        else setLoginError("ورود انجام نشد (خطای " + error.status + ")");
+      } else {
+        setLoginError("ارتباط با سرور ورود برقرار نشد");
+      }
     } finally {
       setLoginBusy(false);
     }

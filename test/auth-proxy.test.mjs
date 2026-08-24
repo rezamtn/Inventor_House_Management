@@ -64,7 +64,7 @@ test('inventory rejects requests without a session', async () => {
   assert.equal(res.statusCode, 401);
 });
 
-test('inventory proxy keeps the API token server-side and forwards ETag', async () => {
+test('inventory proxy keeps the API token server-side and forwards the version token', async () => {
   const cookie = await authenticatedCookie();
   let receivedAuthorization;
   const originalFetch = globalThis.fetch;
@@ -79,7 +79,7 @@ test('inventory proxy keeps the API token server-side and forwards ETag', async 
     const res = responseMock();
     await inventoryHandler(request('GET', { headers: { cookie } }), res);
     assert.equal(res.statusCode, 200);
-    assert.equal(res.headers.get('etag'), '"version-1"');
+    assert.equal(JSON.parse(res.body).versionToken, '"version-1"');
     assert.equal(receivedAuthorization, `Bearer ${process.env.INVENTORY_API_TOKEN}`);
     assert.doesNotMatch(String(res.body), new RegExp(process.env.INVENTORY_API_TOKEN));
   } finally {
@@ -90,17 +90,22 @@ test('inventory proxy keeps the API token server-side and forwards ETag', async 
 test('inventory proxy preserves a stale-write 412 response', async () => {
   const cookie = await authenticatedCookie();
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => new Response(JSON.stringify({ error: 'inventory_changed' }), {
-    status: 412,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  let receivedIfMatch;
+  globalThis.fetch = async (_url, options) => {
+    receivedIfMatch = options.headers.get('If-Match');
+    return new Response(JSON.stringify({ error: 'inventory_changed' }), {
+      status: 412,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  };
   try {
     const res = responseMock();
     await inventoryHandler(request('PUT', {
       body: { version: 5, houses: [] },
-      headers: { cookie, 'if-match': '"old-version"' }
+      headers: { cookie, 'x-inventory-version': '"old-version"' }
     }), res);
     assert.equal(res.statusCode, 412);
+    assert.equal(receivedIfMatch, '"old-version"');
     assert.match(String(res.body), /inventory_changed/);
   } finally {
     globalThis.fetch = originalFetch;

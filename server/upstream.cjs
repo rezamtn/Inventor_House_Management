@@ -27,4 +27,22 @@ async function passJsonResponse(upstream, res) {
   return res.status(upstream.status).send(text);
 }
 
-module.exports = { bodyAsObject, inventoryRequest, passJsonResponse };
+async function passInventoryResponse(upstream, res) {
+  const text = await upstream.text();
+  const versionToken = upstream.headers.get('etag');
+  let output = text;
+  try {
+    const body = JSON.parse(text);
+    if (versionToken && body && typeof body === 'object' && !Array.isArray(body)) {
+      body.versionToken = versionToken;
+    }
+    output = JSON.stringify(body);
+  } catch {
+    // Preserve the upstream response so diagnostics are not hidden.
+  }
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  return res.status(upstream.status).send(output);
+}
+
+module.exports = { bodyAsObject, inventoryRequest, passInventoryResponse, passJsonResponse };
