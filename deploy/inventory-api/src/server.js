@@ -162,6 +162,52 @@ app.put('/api/inventory', authenticate, inventoryLimiter, async (req, res, next)
   }
 });
 
+function validPushSubscription(value) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    && typeof value.endpoint === 'string' && value.endpoint.startsWith('https://') && value.endpoint.length <= 4096
+    && value.keys && typeof value.keys.p256dh === 'string' && value.keys.p256dh.length <= 512
+    && typeof value.keys.auth === 'string' && value.keys.auth.length <= 512;
+}
+
+function pushSubscriptionId(endpoint) {
+  return crypto.createHash('sha256').update(endpoint).digest('hex');
+}
+
+app.get('/api/push-subscriptions', authenticate, inventoryLimiter, async (_req, res, next) => {
+  try {
+    const result = await pool.query('SELECT subscription FROM app.push_subscriptions ORDER BY created_at');
+    res.set('Cache-Control', 'no-store').json({ subscriptions: result.rows.map(row => row.subscription) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/push-subscriptions', authenticate, inventoryLimiter, async (req, res, next) => {
+  if (!validPushSubscription(req.body)) return res.status(400).json({ error: 'invalid_subscription' });
+  try {
+    await pool.query(
+      `INSERT INTO app.push_subscriptions (id, subscription)
+       VALUES ($1, $2::jsonb)
+       ON CONFLICT (id) DO UPDATE SET subscription = EXCLUDED.subscription`,
+      [pushSubscriptionId(req.body.endpoint), JSON.stringify(req.body)]
+    );
+    res.set('Cache-Control', 'no-store').json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete('/api/push-subscriptions', authenticate, inventoryLimiter, async (req, res, next) => {
+  if (!req.body || typeof req.body.endpoint !== 'string' || !req.body.endpoint.startsWith('https://')) {
+    return res.status(400).json({ error: 'invalid_endpoint' });
+  }
+  try {
+    await pool.query('DELETE FROM app.push_subscriptions WHERE id = $1', [pushSubscriptionId(req.body.endpoint)]);
+    res.set('Cache-Control', 'no-store').json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
 app.use((_req, res) => res.status(404).json({ error: 'not_found' }));
 app.use((error, _req, res, _next) => {
   if (error?.type === 'entity.too.large') return res.status(413).json({ error: 'payload_too_large' });
