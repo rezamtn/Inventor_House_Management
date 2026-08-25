@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { loadFromCloud, saveToCloud } from "./supabase";
+import { AuthenticationRequiredError, LoginError, loadFromCloud, login, logout, saveToCloud } from "./cloud";
 
-const VAPID_PUBLIC = 'BOGZiKAFAQnJDEQ_qfQbmQWblUStai9erzPp1wGPmQAtELeRdW-Y56I8YGrFWXPGKqeOZek5lkIIWqEtatnCItQ';
+const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -11,7 +11,7 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function subscribeToPush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+  if (!VAPID_PUBLIC || !('serviceWorker' in navigator) || !('PushManager' in window)) return null;
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') return null;
   const reg = await navigator.serviceWorker.ready;
@@ -69,16 +69,16 @@ function migrate(d) {
         return [s.id,{updatedAt:old?.updatedAt||null,items,sections:[]}];
       }))
     }))};
-  } catch(_){ return null; }
+  } catch { return null; }
 }
 
 function readLocal() {
   for (const key of [LOCAL_KEY,"houseInventory_v4"]) {
-    try { const d=migrate(JSON.parse(localStorage.getItem(key)||"")); if(d?.version===5) return d; } catch(_){}
+    try { const d=migrate(JSON.parse(localStorage.getItem(key)||"")); if(d?.version===5) return d; } catch { /* ignore malformed local data */ }
   }
   return null;
 }
-function writeLocal(d) { try { localStorage.setItem(LOCAL_KEY,JSON.stringify(d)); } catch(_){} }
+function writeLocal(d) { try { localStorage.setItem(LOCAL_KEY,JSON.stringify(d)); } catch { /* local storage may be unavailable */ } }
 function formatDate(iso) {
   if (!iso) return null;
   const d=new Date(iso);
@@ -181,20 +181,36 @@ export default function App() {
   const [modal,          setModal]          = useState(null);
   const [highlightItemId,setHighlightItemId] = useState(null);
   const [pushEnabled,    setPushEnabled]     = useState(false);
+  const [authRequired,   setAuthRequired]    = useState(false);
+  const [loginPassword,  setLoginPassword]   = useState("");
+  const [loginError,     setLoginError]      = useState("");
+  const [loginBusy,      setLoginBusy]       = useState(false);
   const fileRef   = useRef();
   const searchRef = useRef();
   const saveTimer = useRef(null);
 
-  useEffect(() => {
-    (async () => {
-      setSyncMsg("☁️ در حال بارگذاری...");
-      let d = migrate(await loadFromCloud());
+  async function initializeFromCloud() {
+    setSyncMsg("☁️ در حال بارگذاری...");
+    let d;
+    try {
+      d = migrate(await loadFromCloud());
       if (d?.version===5) { writeLocal(d); setSyncMsg("✓ همگام‌سازی شد"); }
       else { d=readLocal(); setSyncMsg(d?"📱 بارگذاری محلی":""); if(!d) d=clone(DEFAULT); }
-      setTimeout(()=>setSyncMsg(""),3000);
-      setData(d); setHouse(d.houses[0].id);
-      setView(d.houses[0].name?"items":"setup");
-    })();
+      setAuthRequired(false);
+    } catch (error) {
+      if (error instanceof AuthenticationRequiredError) {
+        setData(null); setAuthRequired(true); setSyncMsg("");
+        return;
+      }
+      d=readLocal(); setSyncMsg(d?"⚠️ حالت محلی":"⚠️ ارتباط ابری ناموفق"); if(!d) d=clone(DEFAULT);
+    }
+    setTimeout(()=>setSyncMsg(""),3000);
+    setData(d); setHouse(d.houses[0].id);
+    setView(d.houses[0].name?"items":"setup");
+  }
+
+  useEffect(() => {
+    queueMicrotask(() => { void initializeFromCloud(); });
     // Check if already subscribed to push
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       navigator.serviceWorker.ready.then(reg =>
@@ -202,6 +218,28 @@ export default function App() {
       );
     }
   }, []);
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    setLoginBusy(true); setLoginError("");
+    try {
+      await login(loginPassword);
+      setLoginPassword("");
+      await initializeFromCloud();
+    } catch (error) {
+      if (error instanceof LoginError) {
+        if (error.status === 401) setLoginError("رمز عبور نادرست است");
+        else if (error.status === 403) setLoginError("آدرس Preview با APP_ORIGIN مطابقت ندارد");
+        else if (error.status === 429) setLoginError("تعداد تلاش‌ها زیاد است؛ ۱۵ دقیقه صبر کنید");
+        else if (error.status === 503) setLoginError("تنظیمات ورود روی سرور کامل نیست");
+        else setLoginError("ورود انجام نشد (خطای " + error.status + ")");
+      } else {
+        setLoginError("ارتباط با سرور ورود برقرار نشد");
+      }
+    } finally {
+      setLoginBusy(false);
+    }
+  }
 
   useEffect(() => { if(searchOpen&&searchRef.current) searchRef.current.focus(); }, [searchOpen]);
 
@@ -223,9 +261,17 @@ export default function App() {
     setData(nd); writeLocal(nd); setSyncMsg("💾 ذخیره...");
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async()=>{
-      const ok=await saveToCloud(nd);
-      setSyncMsg(ok?"☁️ ذخیره ابر ✓":"⚠️ ذخیره محلی");
-      setTimeout(()=>setSyncMsg(""),3000);
+      try {
+        const result=await saveToCloud(nd);
+        setSyncMsg(result.ok?"☁️ ذخیره ابر ✓":result.conflict?"⚠️ داده ابری تغییر کرده؛ ابتدا صفحه را تازه کنید":"⚠️ ذخیره محلی");
+      } catch (error) {
+        if (error instanceof AuthenticationRequiredError) {
+          setAuthRequired(true); setSyncMsg("⚠️ نشست پایان یافته");
+        } else {
+          setSyncMsg("⚠️ ذخیره محلی");
+        }
+      }
+      setTimeout(()=>setSyncMsg(""),4000);
     },800);
   };
 
@@ -381,7 +427,7 @@ export default function App() {
       const d=migrate(JSON.parse(ev.target.result)); if(!d?.houses) throw new Error();
       persist(d); setHouse(d.houses[0].id); setView(d.houses[0].name?"items":"setup");
       alert("بکاپ با موفقیت بازیابی شد ✓");
-    } catch(_){alert("فایل معتبر نیست");} };
+    } catch {alert("فایل معتبر نیست");} };
     reader.readAsText(file); e.target.value="";
   };
 
@@ -435,6 +481,24 @@ export default function App() {
           ＋ افزودن آیتم به <strong style={{color:"#555"}}>{addLabel}</strong>
         </button>
       </>
+    );
+  }
+
+  if (authRequired) {
+    return (
+      <div style={{...C.wrap,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <form onSubmit={handleLogin} style={{width:"100%",maxWidth:360,border:"1px solid #eee",borderRadius:16,padding:24,boxShadow:"0 12px 40px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:32,textAlign:"center",marginBottom:10}}>🏠</div>
+          <h1 style={{fontSize:20,textAlign:"center",margin:"0 0 20px"}}>ورود به مدیریت خانه</h1>
+          <label style={{fontSize:14,color:"#666",display:"block",marginBottom:6}}>رمز عبور</label>
+          <input autoFocus type="password" autoComplete="current-password" style={C.input}
+            value={loginPassword} onChange={event=>setLoginPassword(event.target.value)} />
+          {loginError&&<div style={{fontSize:13,color:"#A32D2D",marginTop:8}}>{loginError}</div>}
+          <button type="submit" style={{...C.primary,width:"100%",marginTop:16}} disabled={loginBusy||loginPassword.length<12}>
+            {loginBusy?"در حال ورود...":"ورود"}
+          </button>
+        </form>
+      </div>
     );
   }
 
@@ -600,6 +664,7 @@ export default function App() {
         <span style={{fontSize:18,fontWeight:500}}>🏠 مدیریت خانه</span>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           {syncMsg&&<span style={{fontSize:13,color:syncMsg.includes("⚠️")?"#A32D2D":"#0F6E56",fontWeight:500,whiteSpace:"nowrap"}}>{syncMsg}</span>}
+          <button title="خروج" style={{...C.iconBtn(),fontSize:12}} onClick={async()=>{await logout();setData(null);setAuthRequired(true);}}>خروج</button>
           <button
             title={pushEnabled?"اعلان جمعه فعاله — بزن تا غیرفعال بشه":"اعلان هر جمعه ساعت ۱۶ — بزن تا فعال بشه"}
             style={{width:38,height:38,borderRadius:19,border:`1.5px solid ${pushEnabled?"#0F6E56":"#ddd"}`,

@@ -1,0 +1,16 @@
+# Dedicated API subdomain.
+inventory-api.motmaenqa.com {
+    @api path /api/*
+    handle @api {
+        reverse_proxy inventory-api:3000
+    }
+
+    handle {
+        respond "Not Found" 404
+    }
+}
+
+# Alternative: add only this block inside the existing frontend site block:
+# handle /api/* {
+#     reverse_proxy inventory-api:3000
+# }

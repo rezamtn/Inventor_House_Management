@@ -3,10 +3,6 @@
     {
       "path": "/api/notify",
       "schedule": "30 13 * * 5"
-    },
-    {
-      "path": "/api/keep-alive",
-      "schedule": "0 6 * * 0,3"
     }
   ],
   "headers": [
