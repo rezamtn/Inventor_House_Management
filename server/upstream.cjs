@@ -27,9 +27,15 @@ async function passJsonResponse(upstream, res) {
   return res.status(upstream.status).send(text);
 }
 
+function normalizeVersionToken(value) {
+  if (typeof value !== 'string') return null;
+  const token = value.startsWith('W/') ? value.slice(2) : value;
+  return /^"[A-Za-z0-9_-]+"$/.test(token) ? token : null;
+}
+
 async function passInventoryResponse(upstream, res) {
   const text = await upstream.text();
-  const versionToken = upstream.headers.get('etag');
+  const versionToken = normalizeVersionToken(upstream.headers.get('etag'));
   let output = text;
   try {
     const body = JSON.parse(text);
@@ -45,4 +51,4 @@ async function passInventoryResponse(upstream, res) {
   return res.status(upstream.status).send(output);
 }
 
-module.exports = { bodyAsObject, inventoryRequest, passInventoryResponse, passJsonResponse };
+module.exports = { bodyAsObject, inventoryRequest, normalizeVersionToken, passInventoryResponse, passJsonResponse };

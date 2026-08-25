@@ -72,7 +72,7 @@ test('inventory proxy keeps the API token server-side and forwards the version t
     receivedAuthorization = options.headers.get('Authorization');
     return new Response(JSON.stringify({ id: 'main', data: { version: 5, houses: [] } }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', ETag: '"version-1"' }
+      headers: { 'Content-Type': 'application/json', ETag: 'W/"version-1"' }
     });
   };
   try {
@@ -102,7 +102,7 @@ test('inventory proxy preserves a stale-write 412 response', async () => {
     const res = responseMock();
     await inventoryHandler(request('PUT', {
       body: { version: 5, houses: [] },
-      headers: { cookie, 'x-inventory-version': '"old-version"' }
+      headers: { cookie, 'x-inventory-version': 'W/"old-version"' }
     }), res);
     assert.equal(res.statusCode, 412);
     assert.equal(receivedIfMatch, '"old-version"');
