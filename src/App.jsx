@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AuthenticationRequiredError, LoginError, loadFromCloud, login, logout, saveToCloud } from "./cloud";
+import { normalizeForSearch, searchInventory } from "./search";
 
 const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
@@ -131,10 +132,11 @@ const C = {
 };
 
 function highlight(text, q) {
-  if (!q) return text;
-  const i=text.toLowerCase().indexOf(q.toLowerCase());
+  if (!q || !text) return text;
+  const nt=normalizeForSearch(text), nq=normalizeForSearch(q);
+  const i=nt.indexOf(nq);
   if(i===-1) return text;
-  return <>{text.slice(0,i)}<mark style={{background:"#FFF3B0",color:"#111",borderRadius:3,padding:"0 1px"}}>{text.slice(i,i+q.length)}</mark>{text.slice(i+q.length)}</>;
+  return <>{text.slice(0,i)}<mark style={{background:"#FFF3B0",color:"#111",borderRadius:3,padding:"0 1px"}}>{text.slice(i,i+nq.length)}</mark>{text.slice(i+nq.length)}</>;
 }
 
 function qtyColor(qty, unit) {
@@ -433,20 +435,36 @@ export default function App() {
 
   // ── search ────────────────────────────────────────────────────────────────
   function searchResults() {
-    if (!data||!searchQ.trim()) return [];
-    const q=searchQ.trim().toLowerCase(); const res=[];
-    data.houses.forEach(h=>SECTORS.forEach(sec=>{
-      const sd=h.sectors?.[sec.id]; if(!sd) return;
-      const base={houseName:h.name,houseId:h.id,sectorId:sec.id,sectorLabel:sec.label,sectorIcon:sec.icon};
-      (sd.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:"مستقیم",secId:null,subId:null}); });
-      (sd.sections||[]).forEach(s=>{
-        (s.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:s.name,secId:s.id,subId:null}); });
-        (s.subsections||[]).forEach(sub=>{
-          (sub.items||[]).forEach(i=>{ if(i.name.toLowerCase().includes(q)) res.push({...i,...base,path:`${s.name} › ${sub.name}`,secId:s.id,subId:sub.id}); });
-        });
-      });
-    }));
-    return res;
+    return searchInventory(data, searchQ, SECTORS);
+  }
+
+  function goToLocation(loc) {
+    setHouse(loc.houseId);
+    setSector(loc.sectorId);
+    setView("items");
+    setSearchOpen(false);
+    setSearchQ("");
+    setExpanded(e=>{
+      const next={...e};
+      if(loc.secId) next[loc.secId]=true;
+      if(loc.subId) next[loc.subId]=true;
+      return next;
+    });
+  }
+
+  function goToItem(item) {
+    setHouse(item.houseId);
+    setSector(item.sectorId);
+    setView("items");
+    setSearchOpen(false);
+    setSearchQ("");
+    setExpanded(e=>{
+      const next={...e};
+      if(item.secId) next[item.secId]=true;
+      if(item.subId) next[item.subId]=true;
+      return next;
+    });
+    setHighlightItemId(item.id);
   }
 
   function getAllNeeded() {
@@ -720,31 +738,30 @@ export default function App() {
                   <div style={{fontSize:15,fontWeight:500,color:"#555",marginBottom:8}}>🏠 {h.name}</div>
                   {SECTORS.map(sec=>{
                     const sRes=hRes.filter(r=>r.sectorId===sec.id); if(!sRes.length) return null;
+                    const locRes=sRes.filter(r=>r.type==="location");
+                    const itemRes=sRes.filter(r=>r.type==="item");
                     return (
                       <div key={sec.id} style={{marginBottom:8}}>
                         <div style={{fontSize:13,color:"#aaa",marginBottom:5}}>{sec.icon} {sec.label}</div>
-                        {sRes.map(item=>{
+                        {locRes.map(loc=>(
+                          <div key={loc.key} style={{...C.itemRow,cursor:"pointer",background:"#F7F7FB",border:"0.5px dashed #ccc"}}
+                            onClick={()=>goToLocation(loc)}>
+                            <div style={{flex:1,minWidth:0}}>
+                              <span style={{fontSize:15,fontWeight:500}}>📍 {highlight(loc.label,searchQ)}</span>
+                              <span style={{fontSize:11,color:"#bbb",display:"block"}}>موقعیت (برای مشاهده باز کن)</span>
+                            </div>
+                          </div>
+                        ))}
+                        {itemRes.map(item=>{
                           const st=statusOf(item.status);
                           return (
-                            <div key={item.id} style={{...C.itemRow,cursor:"pointer"}} onClick={()=>{
-                              setHouse(item.houseId);
-                              setSector(item.sectorId);
-                              setView("items");
-                              setSearchOpen(false);
-                              setSearchQ("");
-                              // expand parent section and subsection
-                              setExpanded(e=>{
-                                const next={...e};
-                                if(item.secId) next[item.secId]=true;
-                                if(item.subId) next[item.subId]=true;
-                                return next;
-                              });
-                              // scroll + highlight the exact item
-                              setHighlightItemId(item.id);
-                            }}>
+                            <div key={item.id} style={{...C.itemRow,cursor:"pointer"}} onClick={()=>goToItem(item)}>
                               <div style={{flex:1,minWidth:0}}>
                                 <span style={{fontSize:15,fontWeight:500}}>{highlight(item.name,searchQ)}</span>
-                                <span style={{fontSize:11,color:"#bbb",display:"block"}}>{item.path}</span>
+                                <span style={{fontSize:11,color:"#bbb",display:"block"}}>{highlight(item.path,searchQ)}</span>
+                                {item.matchedByLocation&&(
+                                  <span style={{fontSize:11,color:"#1a6fa8",display:"block"}}>🔗 به دلیل موقعیت «{item.matchedLocationLabel}» پیدا شد</span>
+                                )}
                               </div>
                               <span style={C.badge(st)}>{st.label}</span>
                             </div>
